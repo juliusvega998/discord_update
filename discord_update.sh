@@ -9,20 +9,21 @@ tmpdir=$(mktemp -d /tmp/discord-update.XXXXXX)
 last_hash="$(dirname $0)/last_discord_deb_sha"
 
 function cleanup() {
-    code=$1
+    code=$?
+
+    echo "[$(date -Iseconds)] Cleaning up..."
+    if [[ $tmpdir != '/' ]]; then # do not delete root
+        rm -r $tmpdir
+    fi
 
     if [[ $code -gt 0 ]]; then
-        echo "[$(date)] ERROR!!"
+        echo "[$(date -Iseconds)] ERROR!!"
     else
-        echo "[$(date)] Cleaning up..."
-        if [[ $tmpdir != '/' ]]; then # do not delete root
-            rm -r $tmpdir
-        fi
-
-        echo "[$(date)] Finished"
+        echo "[$(date -Iseconds)] Done!"
     fi
 }
 
+# run cleanup on exit
 trap 'cleanup' EXIT
 
 # create last hash file if it does not exist yet
@@ -31,26 +32,27 @@ touch $last_hash
 # navigate to the temp directory
 cd $tmpdir
 
-echo "[$(date)] Getting latest version of $name from $url..."
+echo "[$(date -Iseconds)] Getting latest version of $name..."
 wget -qO $debname "$url"
 
 current_sha=$(sha256sum ${debname} | awk '{ print $1}')
 
+# check if hash matches with the last one
 if [[ $(cat $last_hash) == $current_sha ]]; then
-    echo "[$(date)] There are no discord updates."
+    echo "[$(date -Iseconds)] There is no discord update."
     exit 0
 else
-    echo "[$(date)] There are discord update!"
+    echo "[$(date -Iseconds)] There is a discord update!"
     echo "$current_sha" > $last_hash
 fi
 
 # kill all processes called discord
-echo "[$(date)] Killing all processes called $name"
+echo "[$(date -Iseconds)] Killing all processes called $name"
 for KILLPID in `ps ax | grep $name | awk ' { print $1;}'`; do
     kill $KILLPID &> /dev/null
     sleep 10
 done
 
-# install the deb
-echo "[$(date)] Installing $debname..."
+# install the deb file
+echo "[$(date -Iseconds)] Installing $debname..."
 sudo dpkg -i $debname

@@ -1,5 +1,5 @@
 # Discord Cron Updater
-Contains a bash script to automatically update your discord on boot on linux
+Contains a bash script to automatically update discord on linux on boot using cron
 
 ## Installation
 Clone this repository:
