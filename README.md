@@ -10,7 +10,6 @@ Add the bash script to cron tab. Click [here](https://www.linode.com/docs/guides
 ```
 @reboot /path/to/discord_update/discord_update.sh > /path/to/discord_update/discord_update.log 2>&1
 ```
-NOTE: Update the path to where 
 
 Done! The script now checks on every boot if there is an update and installs it.
 
