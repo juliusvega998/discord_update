@@ -43,16 +43,20 @@ if [[ $(cat $last_hash) == $current_sha ]]; then
     exit 0
 else
     echo "[$(date -Iseconds)] There is a discord update!"
-    echo "$current_sha" > $last_hash
 fi
 
-# kill all processes called discord
-echo "[$(date -Iseconds)] Killing all processes called $name"
-for KILLPID in `ps ax | grep $name | awk ' { print $1;}'`; do
-    kill $KILLPID &> /dev/null
-    sleep 10
-done
+if [[ $(ps ax | grep $name | awk ' { print $1; }' | wc -l ) -gt 1 ]]; then
+    # kill all processes called discord
+    echo "[$(date -Iseconds)] Killing all processes called $name"
+    for KILLPID in $(ps ax | grep $name | awk ' { print $1; }'); do
+        kill $KILLPID &> /dev/null || true
+        sleep 10
+    done
+else
+    echo "[$(date -Iseconds)] Did not found any discord processes. Continuing with the install."
+fi
 
 # install the deb file
 echo "[$(date -Iseconds)] Installing $debname..."
 sudo dpkg -i $debname
+echo "$current_sha" > $last_hash
